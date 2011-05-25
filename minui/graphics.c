@@ -55,11 +55,12 @@ static int gr_fb_fd = -1;
 static int gr_vt_fd = -1;
 
 static struct fb_var_screeninfo vi;
+static struct fb_fix_screeninfo fi;
 
 static int get_framebuffer(GGLSurface *fb)
 {
     int fd;
-    struct fb_fix_screeninfo fi;
+    //struct fb_fix_screeninfo fi;
     void *bits;
 
     fd = open("/dev/graphics/fb0", O_RDWR);
@@ -121,8 +122,10 @@ static void get_memory_surface(GGLSurface* ms) {
   ms->version = sizeof(*ms);
   ms->width = vi.xres;
   ms->height = vi.yres;
-  ms->stride = vi.xres;
-  ms->data = malloc(vi.xres * vi.yres * 2);
+//  ms->stride = vi.xres;
+//  ms->data = malloc(vi.xres * vi.yres * 2);
+  ms->stride = fi.line_length/2;
+  ms->data = malloc(ms->stride * ms->height * 2);
   ms->format = GGL_PIXEL_FORMAT_RGB_565;
 }
 

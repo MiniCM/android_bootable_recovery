@@ -351,7 +351,8 @@ void show_mount_usb_storage_menu()
     int fd;
     Volume *vol = volume_for_path("/sdcard");
     if ((fd = open(BOARD_UMS_LUNFILE, O_WRONLY)) < 0) {
-        LOGE("Unable to open ums lunfile (%s)", strerror(errno));
+        LOGE("Unable to open ums lunfile 1 (%s)", strerror(errno));
+        LOGE("(%s)", BOARD_UMS_LUNFILE);
         return -1;
     }
 
@@ -378,7 +379,7 @@ void show_mount_usb_storage_menu()
     }
 
     if ((fd = open(BOARD_UMS_LUNFILE, O_WRONLY)) < 0) {
-        LOGE("Unable to open ums lunfile (%s)", strerror(errno));
+        LOGE("Unable to open ums lunfile 2 (%s)", strerror(errno));
         return -1;
     }
 
@@ -397,21 +398,13 @@ int confirm_selection(const char* title, const char* confirm)
         return 1;
 
     char* confirm_headers[]  = {  title, "  THIS CAN NOT BE UNDONE.", "", NULL };
-    char* items[] = { "No",
+    char* items[] = { 
                       "No",
-                      "No",
-                      "No",
-                      "No",
-                      "No",
-                      "No",
-                      confirm, //" Yes -- wipe partition",   // [7
-                      "No",
-                      "No",
-                      "No",
+                      confirm, //" Yes -- wipe partition",   // [1]
                       NULL };
 
     int chosen_item = get_menu_selection(confirm_headers, items, 0, 0);
-    return chosen_item == 7;
+    return chosen_item == 1;
 }
 
 #define MKE2FS_BIN      "/sbin/mke2fs"
