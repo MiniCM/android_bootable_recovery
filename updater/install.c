@@ -188,6 +188,7 @@ Value* FormatFn(const char* name, State* state, int argc, Expr* argv[]) {
     char* fs_type;
     char* partition_type;
     char* location;
+    char * unmountthis;
     if (ReadArgs(state, argv, 3, &fs_type, &partition_type, &location) < 0) {
         return NULL;
     }
@@ -215,6 +216,37 @@ Value* FormatFn(const char* name, State* state, int argc, Expr* argv[]) {
             result = strdup("");
             goto done;
         }
+
+	/* Make sure the MTD volume is unmounted first */
+	scan_mounted_volumes();
+	unmountthis = (char *) malloc((strlen(location) + 1) * sizeof (char));
+	strcpy(unmountthis, "/");
+	strcat(unmountthis, location);
+	if (strcmp (unmountthis, "/userdata") == 0)
+	    strcpy(unmountthis, "/data");
+	const MountedVolume* vol = find_mounted_volume_by_mount_point(unmountthis);
+	if (vol == NULL) {
+	    fprintf(stderr, "unmount of %s failed; no such volume\n", unmountthis);
+	} else {
+	    fprintf(stderr, "Unmounting %s\n", unmountthis);
+	    unmount_mounted_volume(vol);
+	}
+	/* If this is /system, we don't format it, instead we rm -rf */
+        if (strcmp(location, "system") == 0) {
+            const MtdPartition* mtd;
+            mtd = mtd_find_partition_by_name(location);
+            if (mtd_mount_partition(mtd, "/system", "yaffs2", 0 /* rw */) != 0) {
+                fprintf(stderr, "mtd mount of %s failed: %s\n",
+                    location, strerror(errno));
+                goto done;
+            }
+            fprintf(stderr, "Formating /system ...\n");
+            __system("/sbin/mount -o remount,rw /system");
+            __system("/sbin/rm -rf /system/*");
+            result = location;
+            goto done;
+    	}
+	
         MtdWriteContext* ctx = mtd_write_partition(mtd);
         if (ctx == NULL) {
             fprintf(stderr, "%s: can't write \"%s\"", name, location);

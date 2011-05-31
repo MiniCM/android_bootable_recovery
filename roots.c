@@ -256,6 +256,16 @@ int ensure_path_unmounted(const char* path) {
 
 int format_volume(const char* volume) {
     Volume* v = volume_for_path(volume);
+    // Special case for formatting /system
+    if (strcmp(volume, "/system") == 0) {
+        // you can't format the system on xperias, thank you SE...
+        LOGE("Formatting /system ...\n");
+        ensure_path_mounted("/system");
+        __system("/sbin/mount -o remount,rw /system");
+        __system("/sbin/rm -rf /system/*");
+        ensure_path_unmounted("/system");
+        return 0;
+    }
     if (v == NULL) {
         // silent failure for sd-ext
         if (strcmp(volume, "/sd-ext") == 0)

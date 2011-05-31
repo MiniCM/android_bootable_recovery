@@ -886,6 +886,10 @@ void show_advanced_menu()
 #ifdef TARGET_RECOVERY_PRE_COMMAND
                 __system( TARGET_RECOVERY_PRE_COMMAND );
 #endif
+		/* Mount /data and touch /data/local/tmp/xrecovery */
+		ensure_path_mounted("/data");
+		__system("/sbin/mkdir -p /data/local/tmp/");
+		__system("/sbin/touch /data/local/tmp/xrecovery");
                 __reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, LINUX_REBOOT_CMD_RESTART2, "recovery");
                 break;
             case 1:
