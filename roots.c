@@ -201,7 +201,13 @@ int ensure_path_mounted(const char* path) {
                  v->device, v->mount_point);
             return -1;
         }
-        return mtd_mount_partition(partition, v->mount_point, v->fs_type, 0);
+        int ret = mtd_mount_partition(partition, v->mount_point, v->fs_type, 0);
+            if (strcmp(v->mount_point, "/system") == 0) {
+            // we need /system mounted rw, thank you SE...
+            __system("/sbin/mount -o remount,rw /system");
+        }
+        return ret;
+        
     } else if (strcmp(v->fs_type, "ext4") == 0 ||
                strcmp(v->fs_type, "ext3") == 0 ||
                strcmp(v->fs_type, "rfs") == 0 ||
