@@ -342,6 +342,26 @@ void show_nandroid_restore_menu()
         nandroid_restore(file, 1, 1, 1, 1, 1, 0);
 }
 
+void show_nandroid_restore_xrecovery_menu()
+{
+    if (ensure_path_mounted("/sdcard") != 0) {
+        LOGE ("Can't mount /sdcard\n");
+        return;
+    }
+
+    static char* headers[] = {  "Choose an image to restore",
+                                "",
+                                NULL
+    };
+
+    char* file = choose_file_menu("/sdcard/xrecovery/backup/", NULL, headers);
+    if (file == NULL)
+        return;
+
+    if (confirm_selection("Confirm restore from xRecovery?", "Yes - Restore"))
+        nandroid_restore(file, 1, 1, 1, 1, 1, 0);
+}
+
 #ifndef BOARD_UMS_LUNFILE
 #define BOARD_UMS_LUNFILE	"/sys/devices/platform/usb_mass_storage/lun0/file"
 #endif
@@ -812,6 +832,7 @@ void show_nandroid_menu()
 
     static char* list[] = { "Backup",
                             "Restore",
+                            "Restore from xRecovery",
                             "Advanced Restore",
                             NULL
     };
@@ -841,6 +862,9 @@ void show_nandroid_menu()
             show_nandroid_restore_menu();
             break;
         case 2:
+            show_nandroid_restore_xrecovery_menu();
+            break;
+        case 3:
             show_nandroid_advanced_restore_menu();
             break;
     }

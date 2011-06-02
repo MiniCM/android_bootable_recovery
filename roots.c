@@ -265,7 +265,7 @@ int format_volume(const char* volume) {
     // Special case for formatting /system
     if (strcmp(volume, "/system") == 0) {
         // you can't format the system on xperias, thank you SE...
-        LOGE("Formatting /system ...\n");
+        //LOGE("Formatting /system ...\n");
         ensure_path_mounted("/system");
         __system("/sbin/mount -o remount,rw /system");
         __system("/sbin/rm -rf /system/*");

@@ -125,7 +125,7 @@ static void get_memory_surface(GGLSurface* ms) {
 //  ms->stride = vi.xres;
 //  ms->data = malloc(vi.xres * vi.yres * 2);
   ms->stride = fi.line_length/2;
-  ms->data = malloc(ms->stride * ms->height * 2);
+  ms->data = malloc(fi.line_length * vi.yres);
   ms->format = GGL_PIXEL_FORMAT_RGB_565;
 }
 
@@ -160,7 +160,7 @@ void gr_flip(void)
     /* copy data from the in-memory surface to the buffer we're about
      * to make active. */
     memcpy(gr_framebuffer[gr_active_fb].data, gr_mem_surface.data,
-           vi.xres * vi.yres * 2);
+           fi.line_length * vi.yres);
 
     /* inform the display driver */
     set_active_framebuffer(gr_active_fb);
