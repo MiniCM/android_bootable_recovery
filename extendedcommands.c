@@ -870,6 +870,151 @@ void show_nandroid_menu()
     }
 }
 
+void show_encrypt_menu()
+{
+    static char* headers[] = {  "Encrypt my /data",
+                                "",
+                                NULL
+    };
+
+    static char* list[] = { "Encrypt - migrate /data",
+                            "Mount encrypted /data",
+                            "Unmount encrypted /data",
+                            "Change encryption password",
+                            //"Encrypt SDCARD",
+                            //"Mount encrypted SDCARD",
+                            //"Unmount encrypted SDCARD",
+                            NULL
+    };
+
+    int chosen_item = get_menu_selection(headers, list, 0, 0);
+    switch (chosen_item)
+    {
+        case 0:
+            show_encrypt_migrate_data_menu();
+            break;
+        case 1:
+            show_encrypt_mount_data_menu();
+            break;
+        case 2:
+            show_encrypt_umount_data_menu();
+            break;
+        case 3:
+            show_encrypt_change_password_menu();
+            break;
+        case 4:
+            show_encrypt_migrate_sdcard_menu();
+            break;
+        case 5:
+            show_encrypt_mount_sdcard_menu();
+            break;
+        case 6:
+            show_encrypt_umount_sdcard_menu();
+            break;
+    }
+}
+
+void show_encrypt_migrate_data_menu()
+{
+    if (ensure_path_mounted("/sdcard") != 0) {
+        LOGE ("Can't mount /sdcard\n");
+        return;
+    }
+    
+    if (ensure_path_mounted("/data") != 0) {
+        LOGE ("Can't mount /data\n");
+        return;
+    }
+
+    static char* headers[] = {  "Encrypt - migrate data",
+                                "THIS WILL WIPE YOUR /data partition!",
+                                NULL
+    };
+    struct stat st;
+    if(stat("/data/data-enc.img",&st) == 0) {
+        fprintf(stderr, "Encrypt: /data/data-enc.img already exists\n");
+        static char* confirm_install = "Encryption data exists, remove?";
+        static char confirm[PATH_MAX];
+        sprintf(confirm, "Yes - Remove encrypted /data");
+        if (confirm_selection(confirm_install, confirm)) {
+	    __system("/sbin/rm -rf /data/*");
+            __system("/sbin/encrypt.sh migrate data");
+        }
+    }
+    else {
+        static char* confirm_install = "Confirm /data encryption?";
+        static char confirm[PATH_MAX];
+        sprintf(confirm, "Yes - Encrypt - migrate /data");
+        if (confirm_selection(confirm_install, confirm)) {
+            __system("/sbin/encrypt.sh migrate data");
+        }
+    }
+}
+
+void show_encrypt_mount_data_menu()
+{
+    if (ensure_path_mounted("/data") != 0) {
+        LOGE ("Can't mount /data\n");
+        return;
+    }
+    __system("/sbin/encrypt.sh mount data");
+}
+
+void show_encrypt_umount_data_menu()
+{
+    if (ensure_path_mounted("/data") != 0) {
+        LOGE ("Can't mount /data\n");
+        return;
+    }
+    __system("/sbin/encrypt.sh umount data");
+}
+
+void show_encrypt_change_password_menu()
+{
+    if (ensure_path_mounted("/data") != 0) {
+        LOGE ("Can't mount /data\n");
+        return;
+    }
+    __system("/sbin/encrypt.sh passwd data");
+}
+
+void show_encrypt_migrate_sdcard_menu()
+{
+    if (ensure_path_mounted("/sdcard") != 0) {
+        LOGE ("Can't mount /sdcard\n");
+        return;
+    }
+
+    static char* headers[] = {  "Encrypt SDCARD",
+                                "THIS WILL WIPE YOUR SDCARD!",
+                                NULL
+    };
+    static char* confirm_install  = "Confirm sdcard encryption?";
+    static char confirm[PATH_MAX];
+    sprintf(confirm, "Yes - Encrypt my SDCARD");
+    if (confirm_selection(confirm_install, confirm)) {
+        __system("/sbin/encrypt.sh migrate sdcard");
+    }
+}
+
+void show_encrypt_mount_sdcard_menu()
+{
+    if (ensure_path_mounted("/sdcard") != 0) {
+        LOGE ("Can't mount /sdcard\n");
+        return;
+    }
+    __system("/sbin/encrypt.sh mount sdcard");
+}
+
+void show_encrypt_umount_sdcard_menu()
+{
+    if (ensure_path_mounted("/sdcard") != 0) {
+        LOGE ("Can't mount /sdcard\n");
+        return;
+    }
+    __system("/sbin/encrypt.sh umount sdcard");
+}
+
 void wipe_battery_stats()
 {
     ensure_path_mounted("/data");

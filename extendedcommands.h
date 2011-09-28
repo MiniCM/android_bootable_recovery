@@ -23,6 +23,30 @@ void
 show_nandroid_menu();
 
 void
+show_encrypt_menu();
+
+void
+show_encrypt_migrate_data_menu();
+
+void
+show_encrypt_migrate_sdcard_menu();
+
+void
+show_encrypt_mount_data_menu();
+
+void
+show_encrypt_mount_sdcard_menu();
+
+void
+show_encrypt_umount_data_menu();
+
+void
+show_encrypt_umount_sdcard_menu();
+
+void
+show_encrypt_change_password_menu();
+
+void
 show_partition_menu();
 
 void
