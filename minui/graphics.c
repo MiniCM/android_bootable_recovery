@@ -55,11 +55,16 @@ static int gr_fb_fd = -1;
 static int gr_vt_fd = -1;
 
 static struct fb_var_screeninfo vi;
+#ifdef BOARD_HAS_CRAPPY_BACKBUFFER
+static struct fb_fix_screeninfo fi;
+#endif
 
 static int get_framebuffer(GGLSurface *fb)
 {
     int fd;
+#ifndef BOARD_HAS_CRAPPY_BACKBUFFER
     struct fb_fix_screeninfo fi;
+#endif
     void *bits;
 
     fd = open("/dev/graphics/fb0", O_RDWR);
@@ -121,8 +126,13 @@ static void get_memory_surface(GGLSurface* ms) {
   ms->version = sizeof(*ms);
   ms->width = vi.xres;
   ms->height = vi.yres;
+#ifdef BOARD_HAS_CRAPPY_BACKBUFFER
+  ms->stride = fi.line_length/2;
+  ms->data = malloc(fi.line_length * vi.yres);
+#else
   ms->stride = vi.xres;
   ms->data = malloc(vi.xres * vi.yres * 2);
+#endif
   ms->format = GGL_PIXEL_FORMAT_RGB_565;
 }
 
@@ -156,9 +166,13 @@ void gr_flip(void)
 
     /* copy data from the in-memory surface to the buffer we're about
      * to make active. */
+#ifdef BOARD_HAS_CRAPPY_BACKBUFFER
+    memcpy(gr_framebuffer[gr_active_fb].data, gr_mem_surface.data,
+           fi.line_length * vi.yres);
+#else
     memcpy(gr_framebuffer[gr_active_fb].data, gr_mem_surface.data,
            vi.xres * vi.yres * 2);
-
+#endif
     /* inform the display driver */
     set_active_framebuffer(gr_active_fb);
 }
