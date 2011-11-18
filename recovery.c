@@ -692,6 +692,9 @@ wipe_data(int confirm) {
 static void
 prompt_and_wait() {
     char** headers = prepend_title((const char**)MENU_HEADERS);
+    /* Hackisly mount /system and umount it so that it can be mounted later on with busybox mount*/
+    ensure_path_mounted("/system");
+    ensure_path_unmounted("/system");
 
     for (;;) {
         finish_recovery(NULL);

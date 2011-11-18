@@ -434,6 +434,16 @@ int confirm_selection(const char* title, const char* confirm)
 
 int format_device(const char *device, const char *path, const char *fs_type) {
     Volume* v = volume_for_path(path);
+    // Special case for formatting /system
+    if (strcmp(path, "/system") == 0) {
+        // you can't format the system on xperias, thank you SE...
+        LOGE("Formatting /system ...\n");
+        ensure_path_mounted("/system");
+        __system("/sbin/mount -o remount,rw /system");
+        __system("/sbin/rm -rf /system/*");
+        ensure_path_unmounted("/system");
+        return 0;
+    }
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
         if (strstr(path, "/sdcard") == path && is_data_media()) {

@@ -228,7 +228,13 @@ int ensure_path_mounted_at_mount_point(const char* path, const char* mount_point
                  v->device, mount_point);
             return -1;
         }
-        return mtd_mount_partition(partition, mount_point, v->fs_type, 0);
+        int ret = mtd_mount_partition(partition, v->mount_point, v->fs_type, 0);
+            if (strcmp(v->mount_point, "/system") == 0) {
+            // we need /system mounted rw, thank you SE...
+            __system("/sbin/mount -o remount,rw /system");
+        }
+        return ret;	
+
     } else if (strcmp(v->fs_type, "ext4") == 0 ||
                strcmp(v->fs_type, "ext3") == 0 ||
                strcmp(v->fs_type, "rfs") == 0 ||
@@ -292,6 +298,16 @@ int ensure_path_unmounted(const char* path) {
 
 int format_volume(const char* volume) {
     Volume* v = volume_for_path(volume);
+    // Special case for formatting /system
+    if (strcmp(volume, "/system") == 0) {
+        // you can't format the system on xperias, thank you SE...
+        LOGE("Formatting /system ...\n");
+        ensure_path_mounted("/system");
+        __system("/sbin/mount -o remount,rw /system");
+        __system("/sbin/rm -rf /system/*");
+        ensure_path_unmounted("/system");
+        return 0;
+    }
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
         if (strstr(volume, "/sdcard") == volume && is_data_media()) {
