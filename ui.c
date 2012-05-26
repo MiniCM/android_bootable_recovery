@@ -842,8 +842,8 @@ void ui_show_text(int visible)
 static int usb_connected() {
     int fd = open("/sys/class/android_usb/android0/state", O_RDONLY);
     if (fd < 0) {
-        printf("failed to open /sys/class/android_usb/android0/state: %s\n",
-               strerror(errno));
+        /*printf("failed to open /sys/class/android_usb/android0/state: %s\n",
+               strerror(errno));*/
         return 0;
     }
 
